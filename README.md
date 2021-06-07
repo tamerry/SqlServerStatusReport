@@ -1,7 +1,7 @@
 # SqlServerStatusReport
 
-Do you know when a SQL Server instance restarts? When you manage many SQL Server instances you may not know when one restarts, so having an automated report emailed to you could be helpful to get an idea what's going on for that instance.
-
+Bir SQL Server'inizin ne zaman yeniden başladığını biliyor musunuz? Pek çok SQL Server örneğini yönetirken, birinin ne zaman yeniden başladığını bilemeyebilirsiniz, bu nedenle size e-postayla gönderilen otomatik bir raporun olması, o örnek için neler olduğu hakkında bir fikir edinmenize yardımcı olabilir.
+çalıştırmak için: 
 The call for running the stored procedure in test mode is:
 
 Exec [DBA].[dbo].[usp_sql_server_status_check_HTML] @Test=’Yes’		
