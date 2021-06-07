@@ -47,19 +47,19 @@ BEGIN
     (
         Information
     )
-    SELECT @Instance + ' at ' + CONVERT(NVARCHAR(17), GETDATE(), 113) + ' Raporun alýndýðý sunucu ve tarih';
+    SELECT @Instance + ' at ' + CONVERT(NVARCHAR(17), GETDATE(), 113) + ' Raporun alindiÄŸi sunucu ve tarih';
     INSERT INTO @SQL_Status_Report
     (
         Information
     )
-    SELECT 'Makina adý : ' + CAST(SERVERPROPERTY('ComputerNamePhysicalNetBIOS') AS NVARCHAR(1024));
+    SELECT 'Makina adi : ' + CAST(SERVERPROPERTY('ComputerNamePhysicalNetBIOS') AS NVARCHAR(1024));
     INSERT INTO @SQL_Status_Report
     (
         Information
     )
     SELECT 'Sql Versiyonu : ' + @@version;
     INSERT INTO @SQL_Status_Report
-    SELECT 'Sql Serverin Baþlangýç zamaný: ' + CONVERT(NVARCHAR(17), sqlserver_start_time, 113)
+    SELECT 'Sql Serverin BaÃ¾langÃ½Ã§ zamanÃ½: ' + CONVERT(NVARCHAR(17), sqlserver_start_time, 113)
     FROM sys.dm_os_sys_info;
 
     -- Disk Drive Space
@@ -67,7 +67,7 @@ BEGIN
     (
         Information
     )
-    SELECT 'Disk durumu ' + @Instance + ' (En az alanlý birim en üstte)';
+    SELECT 'Disk durumu ' + @Instance + ' (En az alanli birim en Ã¼stte)';
     DECLARE @drives TABLE
     (
         drive NVARCHAR(1),
@@ -79,7 +79,7 @@ BEGIN
     (
         Information
     )
-    SELECT drive + ' sürücüsünde  ' + CAST(MbFree / 1000 AS NVARCHAR(20)) + ' GB boþ alan var'
+    SELECT drive + ' sÃ¼rÃ¼cÃ¼sÃ¼nde  ' + CAST(MbFree / 1000 AS NVARCHAR(20)) + ' GB bos alan var'
     FROM @drives
     ORDER BY MbFree ASC; -- Show least amount of space first			
 
@@ -89,13 +89,13 @@ BEGIN
     (
         Information
     )
-    SELECT 'Son ' + CAST(@DaysBack AS NVARCHAR(12)) + ' günde eklenen yeni kullanýcýlar';
+    SELECT 'Son ' + CAST(@DaysBack AS NVARCHAR(12)) + ' gÃ¼nde eklenen yeni kullanicilar';
     INSERT INTO @SQL_Status_Report
     (
         Information
     )
     SELECT name + ' ' + type_desc + ' ' + CONVERT(NVARCHAR(17), create_date, 113) + ' '
-           + CAST(DATEDIFF(DAY, create_date, GETDATE()) AS NVARCHAR(12)) + ' gün önce'
+           + CAST(DATEDIFF(DAY, create_date, GETDATE()) AS NVARCHAR(12)) + ' gÃ¼n Ã¶nce'
     FROM sys.server_principals
     WHERE type_desc IN ( 'WINDOWS_LOGIN', 'WINDOWS_GROUP', 'SQL_LOGIN' )
           AND DATEDIFF(DAY, create_date, GETDATE()) < @DaysBack;
@@ -148,15 +148,15 @@ BEGIN
     (
         Information
     )
-    SELECT 'En büyük database ' + @Instance + ' sunucusunda bulunan';
+    SELECT 'En bÃ¼yÃ¼k database ' + @Instance + ' sunucusunda bulunan';
     INSERT INTO @SQL_Status_Report
     (
         Information
     )
     SELECT TOP 1
-           [db_name] + ' Adýndaki '
+           [db_name] + ' AdÃ½ndaki '
            + CONVERT(NVARCHAR(10), ROUND(CONVERT(NUMERIC, LTRIM(REPLACE([db_size], 'Mb', ''))), 0))
-           + ' MB boyutundaki Veritabanýdýr'
+           + ' MB boyutundaki Veritabanidir.'
     FROM @sp_helpdb_results
     ORDER BY [db_size] DESC;
 
@@ -171,7 +171,7 @@ BEGIN
         Information
     )
     SELECT TOP 1
-           LEFT(database_name, 30) + ' ' + COALESCE(CONVERT(VARCHAR(10), MAX(backup_finish_date), 121), 'Henüz alýnmadý')
+           LEFT(database_name, 30) + ' ' + COALESCE(CONVERT(VARCHAR(10), MAX(backup_finish_date), 121), 'HenÃ¼z alÃ½nmadÃ½')
     FROM msdb..backupset
     WHERE database_name NOT IN ( 'tempdb' )
           AND type = 'D'
@@ -183,7 +183,7 @@ BEGIN
     (
         Information
     )
-    SELECT @Instance + ' Sunucusunun Son ' + CAST(@Log_Days_Agent AS NVARCHAR(12)) + ' güne ait agent Loglarý';
+    SELECT @Instance + ' Sunucusunun Son ' + CAST(@Log_Days_Agent AS NVARCHAR(12)) + ' gÃ¼ne ait agent loglari';
     DECLARE @SqlAgenterrorLog TABLE
     (
         logdate DATETIME,
@@ -208,7 +208,7 @@ BEGIN
     (
         Information
     )
-    SELECT @Instance + ' Sunucusunun Sql server loglarý top 20 ';
+    SELECT @Instance + ' Sunucusunun Sql server loglari top 20 ';
     DECLARE @SqlerrorLog TABLE
     (
         logdate DATETIME,
@@ -236,7 +236,7 @@ BEGIN
     (
         Information
     )
-    SELECT 'daha fazla bilgi için  : ' + @Reference;
+    SELECT 'daha fazla bilgi iÃ§in  : ' + @Reference;
 
 END;
 
@@ -252,25 +252,25 @@ SET @xml = CAST(
                FOR XML PATH('tr'), ELEMENTS
            ) AS NVARCHAR(MAX));
 
-DECLARE @Subject_Line NVARCHAR(128) = @Instance + N' Makinasýna ait durum raporu';
+DECLARE @Subject_Line NVARCHAR(128) = @Instance + N' MakinasÃ½na ait durum raporu';
 SET @body = N'<html><body><table border = 1 width="80%"><th><H3>' + @Subject_Line + N'</H3></th>';
 
 SET @body = @body + @xml + N'</table></body></html>';
 IF (@Test = 'Yes')
 BEGIN
     SET @Subject_Line = @Subject_Line + N' Test Mode';
-    EXEC msdb.dbo.sp_send_dbmail @profile_name = 'TAMER',              -- replace with your SQL Database Mail Profile 
+    EXEC msdb.dbo.sp_send_dbmail @profile_name = 'profilename',              -- replace with your SQL Database Mail Profile 
                                  @body = @body,
                                  @body_format = 'HTML',
-                                 @recipients = 'puzzleistt@gmail.com', -- replace with your email address
+                                 @recipients = 'mail@mail.com', -- replace with your email address
                                  @subject = @Subject_Line;
     PRINT @body;
 END;
 ELSE
 BEGIN
-    EXEC msdb.dbo.sp_send_dbmail @profile_name = 'TAMER',              -- replace with your SQL Database Mail Profile 
+    EXEC msdb.dbo.sp_send_dbmail @profile_name = 'profilename',              -- replace with your SQL Database Mail Profile 
                                  @body = @body,
                                  @body_format = 'HTML',
-                                 @recipients = 'puzzleistt@gmail.com', -- replace with the monitoring email address 
+                                 @recipients = 'mail@mail.com', -- replace with the monitoring email address 
                                  @subject = @Subject_Line;
 END;
